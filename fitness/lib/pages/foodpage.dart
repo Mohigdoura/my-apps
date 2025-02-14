@@ -1,22 +1,20 @@
 import 'package:fitness/model/diet_model.dart';
 import 'package:fitness/model/popular_model.dart';
-import 'package:fitness/pages/1stpage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../model/category_model.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class Foodpage extends StatefulWidget {
+  const Foodpage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<Foodpage> createState() => _FoodpageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _FoodpageState extends State<Foodpage> {
   List<CategoryModel> categories = [];
   List<DietModel> diets = [];
   List<PopularDietsModel> popularDiets = [];
-
   void _getInitialInfo() {
     categories = CategoryModel.getCategories();
     diets = DietModel.getDiets();
@@ -365,7 +363,7 @@ class _HomePageState extends State<HomePage> {
       // leading: GestureDetector(
       //   onTap: () {Navigator.push(
       //         context,
-      //         MaterialPageRoute(builder: (context) => Page1()),
+      //         MaterialPageRoute(builder: (context) => HomePage()),
       //       );},
       //   child: Container(
       //     margin: EdgeInsets.all(10),
