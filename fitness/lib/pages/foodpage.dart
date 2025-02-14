@@ -111,7 +111,7 @@ class _FoodpageState extends State<Foodpage> {
                     ),
                   );
                 },
-                separatorBuilder: (context, index) => SizedBox(width: 25),
+                separatorBuilder: (context, index) => SizedBox(height: 5),
                 itemCount: popularDiets.length,
                 padding: EdgeInsets.only(
                   left: 20,

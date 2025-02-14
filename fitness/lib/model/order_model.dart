@@ -18,14 +18,42 @@ class OrderModel {
       name: 'Honey Pancake',
       iconPath: 'assets/icons/honey-pancakes.svg',
       number: 1,
-      price: '30mins',
+      price: '18DT',
     ));
 
     orders.add(OrderModel(
       name: 'Canai Bread',
       iconPath: 'assets/icons/canai-bread.svg',
       number: 1,
-      price: '20mins',
+      price: '3.5DT',
+    ));
+
+    orders.add(OrderModel(
+      name: 'Canai bread',
+      iconPath: 'assets/icons/canai-bread.svg',
+      number: 1,
+      price: '15DT',
+    ));
+
+    orders.add(OrderModel(
+      name: 'Canai Brad',
+      iconPath: 'assets/icons/canai-bread.svg',
+      number: 1,
+      price: '13DT',
+    ));
+
+    orders.add(OrderModel(
+      name: 'Cnai Bread',
+      iconPath: 'assets/icons/canai-bread.svg',
+      number: 1,
+      price: '12DT',
+    ));
+
+    orders.add(OrderModel(
+      name: 'Cani Bread',
+      iconPath: 'assets/icons/canai-bread.svg',
+      number: 1,
+      price: '10DT',
     ));
 
     return orders;

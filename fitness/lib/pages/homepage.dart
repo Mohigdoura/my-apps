@@ -15,79 +15,99 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       drawer: Drawer(
         child: ListView(
-          padding: EdgeInsets.only(top: 30),
+          padding: const EdgeInsets.only(top: 30),
           children: [
             const DrawerHeader(
               decoration: BoxDecoration(color: Colors.grey),
-              child: Text('profile'),
+              child: Text('Profile',
+                  style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white)),
             ),
             ListTile(
-              title: Text('foodpage'),
+              leading: const Icon(Icons.fastfood, color: Colors.blue),
+              title: const Text('Food Page'),
               onTap: () {
-                Navigator.of(context).push(_createRoute(Foodpage()));
+                Navigator.of(context).push(_createRoute(const Foodpage()));
               },
             ),
             ListTile(
-              title: Text(
-                'orders',
-                style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 18,
-                    fontWeight: FontWeight.normal),
-              ),
+              leading: const Icon(Icons.shopping_cart, color: Colors.blue),
+              title: const Text('Orders'),
               onTap: () {
-                Navigator.of(context).push(_createRoute(Orderspage()));
+                Navigator.of(context).push(_createRoute(const Orderspage()));
               },
             )
           ],
         ),
       ),
-      appBar: AppBar(title: Text('welcome')),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Center(),
-          GestureDetector(
-            onTap: () {
-              // Navigate to a new screen
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => Foodpage()),
-              );
-            },
-            child: Container(
-              padding: EdgeInsets.all(16),
+      appBar: AppBar(title: const Text('Welcome')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _buildCircularButton(
+              icon: Icons.fastfood,
+              text: 'Food',
+              color: Colors.orange,
+              onTap: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => const Foodpage()));
+              },
+            ),
+            const SizedBox(height: 30),
+            _buildCircularButton(
+              icon: Icons.shopping_cart,
+              text: 'Orders',
               color: Colors.blue,
-              child: Text('Food', style: TextStyle(color: Colors.white)),
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const Orderspage()));
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCircularButton(
+      {required IconData icon,
+      required String text,
+      required Color color,
+      required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          ClipOval(
+            child: Container(
+              width: 80,
+              height: 80,
+              color: color,
+              child: Icon(icon, color: Colors.white, size: 40),
             ),
           ),
-          SizedBox(height: 20),
-          GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => Orderspage()),
-              );
-            },
-            child: Container(
-              padding: EdgeInsets.all(16),
-              color: Colors.blue,
-              child: Text('Orders', style: TextStyle(color: Colors.white)),
-            ),
-          )
+          const SizedBox(height: 10),
+          Text(text,
+              style:
+                  const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         ],
       ),
     );
   }
 }
 
-Route _createRoute(pagename) {
+Route _createRoute(Widget pagename) {
   return PageRouteBuilder(
     pageBuilder: (context, animation, secondaryAnimation) => pagename,
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       const begin = Offset(1.0, 0.0);
       const end = Offset.zero;
-      const curve = Curves.ease;
+      const curve = Curves.easeInOut;
 
       var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
 
