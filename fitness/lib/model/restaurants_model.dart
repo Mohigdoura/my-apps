@@ -1,35 +1,35 @@
 import 'package:flutter/material.dart';
 
-class CategoryModel {
+class RestorantsModel {
   String name;
   String iconPath;
   Color boxColor;
-  CategoryModel({
+  RestorantsModel({
     required this.name,
     required this.iconPath,
     required this.boxColor,
   });
-  static List<CategoryModel> getCategories() {
-    List<CategoryModel> categories = [];
-    categories.add(CategoryModel(
-        name: 'Salad',
+  static List<RestorantsModel> getRestaurants() {
+    List<RestorantsModel> restaurants = [];
+    restaurants.add(RestorantsModel(
+        name: 'la casa',
         iconPath: 'assets/icons/plate.svg',
         boxColor: Color(0xff9DCEFF)));
 
-    categories.add(CategoryModel(
-        name: 'Cake',
+    restaurants.add(RestorantsModel(
+        name: 'marella',
         iconPath: 'assets/icons/pancakes.svg',
         boxColor: Color(0xffEEA4CE)));
 
-    categories.add(CategoryModel(
-        name: 'Pie',
+    restaurants.add(RestorantsModel(
+        name: 'abd rhim',
         iconPath: 'assets/icons/pie.svg',
         boxColor: Color(0xff9DCEFF)));
 
-    categories.add(CategoryModel(
-        name: 'Smoothies',
+    restaurants.add(RestorantsModel(
+        name: 'mdnini',
         iconPath: 'assets/icons/orange-snacks.svg',
         boxColor: Color(0xffEEA4CE)));
-    return categories;
+    return restaurants;
   }
 }

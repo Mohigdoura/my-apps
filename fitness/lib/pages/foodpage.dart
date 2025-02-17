@@ -1,141 +1,67 @@
-import 'package:fitness/model/diet_model.dart';
-import 'package:fitness/model/popular_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import '../model/category_model.dart';
+import '../model/cart_model.dart';
+import '../model/sellers_model.dart';
+import '../model/popular_model.dart';
+import '../model/restaurants_model.dart';
+import '../pages/restopage.dart';
 
 class Foodpage extends StatefulWidget {
-  const Foodpage({super.key});
+  final void Function(CartModel) onAddToOrders;
+
+  const Foodpage({super.key, required this.onAddToOrders});
 
   @override
   State<Foodpage> createState() => _FoodpageState();
 }
 
 class _FoodpageState extends State<Foodpage> {
-  List<CategoryModel> categories = [];
-  List<DietModel> diets = [];
-  List<PopularDietsModel> popularDiets = [];
+  List<RestorantsModel> restaurants = [];
+  List<SellersModel> diets = [];
+  List<PopularfoodModel> popularDiets = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _getInitialInfo();
+  }
+
   void _getInitialInfo() {
-    categories = CategoryModel.getCategories();
-    diets = DietModel.getDiets();
-    popularDiets = PopularDietsModel.getPopularDiets();
+    setState(() {
+      restaurants = RestorantsModel.getRestaurants();
+      diets = SellersModel.getSellers();
+      popularDiets = PopularfoodModel.getPopularDiets();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    _getInitialInfo();
     return Scaffold(
-      appBar: appBar(),
+      appBar: _buildAppBar(),
       backgroundColor: Colors.white,
       body: ListView(
         children: [
-          _searshfield(),
+          _buildSearchField(),
           const SizedBox(height: 40),
-          _categoriesSection(),
+          _buildRestaurantsSection(),
           const SizedBox(height: 40),
-          _dietSection(),
+          _buildRecommendationSection(widget.onAddToOrders),
           const SizedBox(height: 40),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Padding(
-                padding: EdgeInsets.only(left: 20.0),
-                child: Text(
-                  'Popular',
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600),
-                ),
-              ),
-              const SizedBox(height: 15),
-              ListView.separated(
-                shrinkWrap: true,
-                itemBuilder: (context, index) {
-                  return Container(
-                    height: 100,
-                    decoration: BoxDecoration(
-                      color: popularDiets[index].boxIsSelected
-                          ? Colors.white
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: popularDiets[index].boxIsSelected
-                          ? [
-                              BoxShadow(
-                                // ignore: deprecated_member_use
-                                color: Color(0xff1D1617).withOpacity(0.07),
-                                offset: Offset(0, 10),
-                                blurRadius: 40,
-                                spreadRadius: 0,
-                              ),
-                            ]
-                          : [],
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        SvgPicture.asset(
-                          popularDiets[index].iconPath,
-                          width: 65,
-                          height: 65,
-                        ),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              popularDiets[index].name,
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500),
-                            ),
-                            Text(
-                              '${popularDiets[index].level} | ${popularDiets[index].duration} | ${popularDiets[index].calorie}',
-                              style: TextStyle(
-                                  color: Color(0xff7B6F72),
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w400),
-                            )
-                          ],
-                        ),
-                        GestureDetector(
-                          onTap: () {},
-                          child: SvgPicture.asset(
-                            'assets/icons/button.svg',
-                            width: 30,
-                            height: 30,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-                separatorBuilder: (context, index) => SizedBox(height: 5),
-                itemCount: popularDiets.length,
-                padding: EdgeInsets.only(
-                  left: 20,
-                  right: 20,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(
-            height: 40,
-          ),
+          _buildBestSellersSection(),
+          const SizedBox(height: 40),
         ],
       ),
     );
   }
 
-  Column _dietSection() {
+  Widget _buildRecommendationSection(void Function(CartModel) onAddToOrders) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 20.0),
+        const Padding(
+          padding: EdgeInsets.only(left: 20.0),
           child: Text(
-            'Recommendation\nfor Diet',
+            'Recommendation\n',
             style: TextStyle(
               color: Colors.black,
               fontSize: 18,
@@ -143,97 +69,34 @@ class _FoodpageState extends State<Foodpage> {
             ),
           ),
         ),
-        SizedBox(height: 15),
+        const SizedBox(height: 15),
         SizedBox(
           height: 240,
           child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            itemCount: diets.length,
+            separatorBuilder: (context, index) => const SizedBox(width: 25),
             itemBuilder: (context, index) {
-              return Container(
-                width: 210,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  // ignore: deprecated_member_use
-                  color: diets[index].boxColor.withOpacity(0.3),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    SvgPicture.asset(diets[index].iconPath),
-                    Column(
-                      children: [
-                        Text(
-                          diets[index].name,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            color: Colors.black,
-                            fontSize: 16,
-                          ),
-                        ),
-                        Text(
-                          '${diets[index].level} | ${diets[index].duration} | ${diets[index].calorie}',
-                          style: TextStyle(
-                            color: Color(0xff786F72),
-                            fontSize: 13,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Container(
-                      height: 45,
-                      width: 130,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            diets[index].viewIsSelected
-                                ? Color(0xff9DCEFF)
-                                : const Color.fromARGB(171, 237, 133, 225),
-                            diets[index].viewIsSelected
-                                ? Color(0xff92A3FD)
-                                : const Color.fromARGB(146, 247, 0, 255),
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(50),
-                      ),
-                      child: Center(
-                        child: Text(
-                          'View',
-                          style: TextStyle(
-                              color: diets[index].viewIsSelected
-                                  ? Colors.white
-                                  : Color.fromARGB(255, 255, 255, 255),
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+              return RecommendationItem(
+                food: diets[index],
+                onAddToOrders: onAddToOrders,
               );
             },
-            separatorBuilder: (context, index) => SizedBox(
-              width: 25,
-            ),
-            itemCount: diets.length,
-            scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.only(
-              left: 20,
-              right: 20,
-            ),
           ),
-        )
+        ),
       ],
     );
   }
 
-  Column _categoriesSection() {
+  Widget _buildBestSellersSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 20.0),
+        const Padding(
+          padding: EdgeInsets.only(left: 20.0),
           child: Text(
-            'Category',
+            'Best Sellers',
             style: TextStyle(
               color: Colors.black,
               fontSize: 18,
@@ -241,116 +104,49 @@ class _FoodpageState extends State<Foodpage> {
             ),
           ),
         ),
-        SizedBox(height: 30),
-        SizedBox(
-          height: 120,
-          child: ListView.separated(
-            separatorBuilder: (context, index) => SizedBox(
-              width: 15,
-            ),
-            scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.only(
-              left: 20,
-              right: 20,
-            ),
-            itemCount: categories.length,
-            itemBuilder: (context, index) {
-              return Container(
-                width: 100,
-                decoration: BoxDecoration(
-                  // ignore: deprecated_member_use
-                  color: categories[index].boxColor.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: SvgPicture.asset(categories[index].iconPath),
-                      ),
-                    ),
-                    Text(
-                      categories[index].name,
-                      style: TextStyle(
-                          fontWeight: FontWeight.w400,
-                          color: Colors.black,
-                          fontSize: 14),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
+        const SizedBox(height: 15),
+        ListView.separated(
+          shrinkWrap: true,
+          itemCount: popularDiets.length,
+          separatorBuilder: (context, index) => const SizedBox(height: 5),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          itemBuilder: (context, index) {
+            return BestSellerItem(
+              sellers: popularDiets[index],
+            );
+          },
         ),
       ],
     );
   }
 
-  Container _searshfield() {
+  Widget _buildSearchField() {
     return Container(
-      margin: EdgeInsets.only(top: 40, left: 20, right: 20),
-      decoration: BoxDecoration(boxShadow: [
-        BoxShadow(
-          // ignore: deprecated_member_use
-          color: Color(0xff1D1617).withOpacity(0.11),
-          blurRadius: 40,
-          spreadRadius: 0.0,
-        ),
-      ]),
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
       child: TextField(
         decoration: InputDecoration(
           filled: true,
           fillColor: Colors.white,
-          contentPadding: EdgeInsets.all(15),
+          contentPadding: const EdgeInsets.all(15),
           hintText: 'Search pancake',
-          hintStyle: TextStyle(
-            color: Color(0xffDDDADA),
-            fontSize: 14,
-          ),
+          hintStyle: const TextStyle(color: Color(0xffDDDADA), fontSize: 14),
           prefixIcon: Padding(
             padding: const EdgeInsets.all(12.0),
             child: SvgPicture.asset('assets/icons/Search.svg'),
           ),
-          suffixIcon: SizedBox(
-            width: 100,
-            child: IntrinsicHeight(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  VerticalDivider(
-                    color: Colors.black,
-                    indent: 10,
-                    endIndent: 10,
-                    thickness: 0.1,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: SvgPicture.asset('assets/icons/Filter.svg'),
-                  ),
-                ],
-              ),
-            ),
-          ),
           border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15),
-              borderSide: BorderSide.none),
+            borderRadius: BorderRadius.circular(15),
+            borderSide: BorderSide.none,
+          ),
         ),
       ),
     );
   }
 
-  AppBar appBar() {
+  AppBar _buildAppBar() {
     return AppBar(
-      title: Text(
-        'mohieddine',
+      title: const Text(
+        'Mohieddine',
         style: TextStyle(
           color: Colors.black,
           fontSize: 18,
@@ -360,44 +156,234 @@ class _FoodpageState extends State<Foodpage> {
       backgroundColor: Colors.white,
       elevation: 0.0,
       centerTitle: true,
-      // leading: GestureDetector(
-      //   onTap: () {Navigator.push(
-      //         context,
-      //         MaterialPageRoute(builder: (context) => HomePage()),
-      //       );},
-      //   child: Container(
-      //     margin: EdgeInsets.all(10),
-      //     alignment: Alignment.center,
-      //     decoration: BoxDecoration(
-      //       color: Color(0xffF7F8F8),
-      //       borderRadius: BorderRadius.circular(10),
-      //     ),
-      //     child: SvgPicture.asset(
-      //       'assets/icons/Arrow - Left 2.svg',
-      //       height: 20,
-      //       width: 20,
-      //     ),
-      //   ),
-      // ),
-      actions: [
-        GestureDetector(
-          onTap: () {},
-          child: Container(
-            margin: EdgeInsets.all(10),
-            alignment: Alignment.center,
-            width: 37,
-            decoration: BoxDecoration(
-              color: Color(0xffF7F8F8),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: SvgPicture.asset(
-              'assets/icons/dots.svg',
-              height: 5,
-              width: 5,
+    );
+  }
+
+  Widget _buildRestaurantsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.only(left: 20.0),
+          child: Text(
+            'Restaurants',
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ),
+        const SizedBox(height: 30),
+        SizedBox(
+          height: 120,
+          child: ListView.separated(
+            separatorBuilder: (context, index) => const SizedBox(width: 15),
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.only(left: 20, right: 20),
+            itemCount: restaurants.length,
+            itemBuilder: (context, index) {
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          RestoPage(restaurant: restaurants[index]),
+                    ),
+                  );
+                },
+                child: Container(
+                  width: 100,
+                  decoration: BoxDecoration(
+                    color: restaurants[index].boxColor.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Container(
+                        width: 50,
+                        height: 50,
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: SvgPicture.asset(restaurants[index].iconPath),
+                        ),
+                      ),
+                      Text(
+                        restaurants[index].name,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w400,
+                          color: Colors.black,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
       ],
+    );
+  }
+}
+
+class RecommendationItem extends StatelessWidget {
+  final SellersModel food;
+  final void Function(CartModel) onAddToOrders;
+
+  const RecommendationItem({
+    super.key,
+    required this.food,
+    required this.onAddToOrders,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 210,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: food.boxColor.withOpacity(0.3),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          SvgPicture.asset(food.iconPath),
+          Column(
+            children: [
+              Text(
+                food.name,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black,
+                  fontSize: 16,
+                ),
+              ),
+              Text(
+                food.price,
+                style: const TextStyle(
+                  color: Color(0xff786F72),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ],
+          ),
+          GestureDetector(
+            onTap: () {
+              CartModel newOrder = CartModel(
+                name: food.name,
+                price: food.price, // Example price
+                iconPath: food.iconPath,
+                number: 1, // Start with 1 quantity
+              );
+
+              onAddToOrders(newOrder);
+            },
+            child: Container(
+              height: 45,
+              width: 130,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    food.viewIsSelected
+                        ? const Color(0xff9DCEFF)
+                        : const Color.fromARGB(171, 237, 133, 225),
+                    food.viewIsSelected
+                        ? const Color(0xff92A3FD)
+                        : const Color.fromARGB(146, 247, 0, 255),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(50),
+              ),
+              child: const Center(
+                child: Text(
+                  'Add',
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class BestSellerItem extends StatelessWidget {
+  final PopularfoodModel sellers;
+
+  const BestSellerItem({
+    super.key,
+    required this.sellers,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 100,
+      decoration: BoxDecoration(
+        color: sellers.boxIsSelected ? Colors.white : Colors.transparent,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: sellers.boxIsSelected
+            ? [
+                BoxShadow(
+                  color: const Color(0xff1D1617).withOpacity(0.07),
+                  offset: const Offset(0, 10),
+                  blurRadius: 40,
+                  spreadRadius: 0,
+                ),
+              ]
+            : [],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          SvgPicture.asset(
+            sellers.iconPath,
+            width: 65,
+            height: 65,
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                sellers.name,
+                style: const TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500),
+              ),
+              Text(
+                sellers.price,
+                style: const TextStyle(
+                    color: Color(0xff7B6F72),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w400),
+              ),
+            ],
+          ),
+          GestureDetector(
+            onTap: () {},
+            child: SvgPicture.asset(
+              'assets/icons/button.svg',
+              width: 30,
+              height: 30,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

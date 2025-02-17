@@ -1,37 +1,32 @@
-class PopularDietsModel {
+class PopularfoodModel {
   String name;
   String iconPath;
-  String level;
-  String duration;
-  String calorie;
+  String price;
   bool boxIsSelected;
 
-  PopularDietsModel(
+  // ignore: prefer_typing_uninitialized_variables
+  var viewIsSelected;
+
+  PopularfoodModel(
       {required this.name,
       required this.iconPath,
-      required this.level,
-      required this.duration,
-      required this.calorie,
+      required this.price,
       required this.boxIsSelected});
 
-  static List<PopularDietsModel> getPopularDiets() {
-    List<PopularDietsModel> popularDiets = [];
+  static List<PopularfoodModel> getPopularDiets() {
+    List<PopularfoodModel> popularDiets = [];
 
-    popularDiets.add(PopularDietsModel(
-      name: 'Blueberry Pancake',
+    popularDiets.add(PopularfoodModel(
+      name: 'sandwitch',
       iconPath: 'assets/icons/blueberry-pancake.svg',
-      level: 'Medium',
-      duration: '30mins',
-      calorie: '230kCal',
+      price: '7DT',
       boxIsSelected: true,
     ));
 
-    popularDiets.add(PopularDietsModel(
-      name: 'Salmon Nigiri',
+    popularDiets.add(PopularfoodModel(
+      name: 'pizza',
       iconPath: 'assets/icons/salmon-nigiri.svg',
-      level: 'Easy',
-      duration: '20mins',
-      calorie: '120kCal',
+      price: '20DT',
       boxIsSelected: false,
     ));
 

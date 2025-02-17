@@ -1,6 +1,7 @@
 import 'package:fitness/pages/foodpage.dart';
-import 'package:fitness/pages/orderspage.dart';
+import 'package:fitness/pages/cartpage.dart';
 import 'package:flutter/material.dart';
+import '../model/cart_model.dart'; // Import the OrderModel if not already imported
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -10,63 +11,54 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  // Constants for reusable strings and colors
+  static const String appTitle = 'Welcome';
+  static const String foodPageTitle = 'Food Page';
+  static const String ordersPageTitle = 'Orders';
+  static const String profileTitle = 'Profile';
+  static const Color foodButtonColor = Colors.orange;
+  static const Color ordersButtonColor = Colors.blue;
+
+  // List to store orders
+  List<CartModel> orders = [];
+
+  // Callback function to add orders
+  void _addToOrders(CartModel order) {
+    setState(() {
+      orders.add(order);
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('${order.name} added to orders!')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: Drawer(
-        child: ListView(
-          padding: const EdgeInsets.only(top: 30),
-          children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(color: Colors.grey),
-              child: Text('Profile',
-                  style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white)),
-            ),
-            ListTile(
-              leading: const Icon(Icons.fastfood, color: Colors.blue),
-              title: const Text('Food Page'),
-              onTap: () {
-                Navigator.of(context).push(_createRoute(const Foodpage()));
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.shopping_cart, color: Colors.blue),
-              title: const Text('Orders'),
-              onTap: () {
-                Navigator.of(context).push(_createRoute(const Orderspage()));
-              },
-            )
-          ],
-        ),
-      ),
-      appBar: AppBar(title: const Text('Welcome')),
+      drawer: _buildDrawer(context),
+      appBar: AppBar(title: const Text(appTitle)),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             _buildCircularButton(
               icon: Icons.fastfood,
-              text: 'Food',
-              color: Colors.orange,
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => const Foodpage()));
-              },
+              text: foodPageTitle,
+              color: foodButtonColor,
+              onTap: () => _navigateToPage(
+                context,
+                Foodpage(onAddToOrders: _addToOrders), // Pass the callback
+              ),
             ),
             const SizedBox(height: 30),
             _buildCircularButton(
               icon: Icons.shopping_cart,
-              text: 'Orders',
-              color: Colors.blue,
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const Orderspage()));
-              },
+              text: ordersPageTitle,
+              color: ordersButtonColor,
+              onTap: () => _navigateToPage(
+                context,
+                Cartpage(orders: orders), // Pass the orders list
+              ),
             ),
           ],
         ),
@@ -74,11 +66,69 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildCircularButton(
-      {required IconData icon,
-      required String text,
-      required Color color,
-      required VoidCallback onTap}) {
+  // Build the drawer
+  Widget _buildDrawer(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        padding: const EdgeInsets.only(top: 30),
+        children: [
+          _buildDrawerHeader(),
+          _buildDrawerItem(
+            icon: Icons.fastfood,
+            title: foodPageTitle,
+            onTap: () => _navigateToPage(
+              context,
+              Foodpage(onAddToOrders: _addToOrders), // Pass the callback
+            ),
+          ),
+          _buildDrawerItem(
+            icon: Icons.shopping_cart,
+            title: ordersPageTitle,
+            onTap: () => _navigateToPage(
+              context,
+              Cartpage(orders: orders), // Pass the orders list
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Build the drawer header
+  Widget _buildDrawerHeader() {
+    return const DrawerHeader(
+      decoration: BoxDecoration(color: Colors.grey),
+      child: Text(
+        profileTitle,
+        style: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+
+  // Build a reusable drawer item
+  Widget _buildDrawerItem({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.blue),
+      title: Text(title),
+      onTap: onTap,
+    );
+  }
+
+  // Build a circular button
+  Widget _buildCircularButton({
+    required IconData icon,
+    required String text,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Column(
@@ -91,27 +141,35 @@ class _HomePageState extends State<HomePage> {
               child: Icon(icon, color: Colors.white, size: 40),
             ),
           ),
-          const SizedBox(height: 10),
-          Text(text,
-              style:
-                  const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 10), // Add spacing between the icon and text
+          Text(
+            text,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
         ],
       ),
     );
   }
-}
 
-Route _createRoute(Widget pagename) {
-  return PageRouteBuilder(
-    pageBuilder: (context, animation, secondaryAnimation) => pagename,
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      const begin = Offset(1.0, 0.0);
-      const end = Offset.zero;
-      const curve = Curves.easeInOut;
+  // Navigate to a page with a custom transition
+  void _navigateToPage(BuildContext context, Widget page) {
+    Navigator.of(context).push(_createRoute(page));
+  }
 
-      var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+  // Create a custom route transition
+  Route _createRoute(Widget page) {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => page,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(1.0, 0.0);
+        const end = Offset.zero;
+        const curve = Curves.easeInOut;
 
-      return SlideTransition(position: animation.drive(tween), child: child);
-    },
-  );
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+        return SlideTransition(position: animation.drive(tween), child: child);
+      },
+    );
+  }
 }
