@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../model/cart_model.dart';
-import '../model/sellers_model.dart';
+import '../model/loved_model.dart';
 import '../model/popular_model.dart';
 import '../model/restaurants_model.dart';
 import '../pages/restopage.dart';
@@ -17,7 +17,7 @@ class Foodpage extends StatefulWidget {
 
 class _FoodpageState extends State<Foodpage> {
   List<RestorantsModel> restaurants = [];
-  List<SellersModel> diets = [];
+  List<LovedModel> loved = [];
   List<PopularfoodModel> popularDiets = [];
 
   @override
@@ -29,7 +29,7 @@ class _FoodpageState extends State<Foodpage> {
   void _getInitialInfo() {
     setState(() {
       restaurants = RestorantsModel.getRestaurants();
-      diets = SellersModel.getSellers();
+      loved = LovedModel.getLoved();
       popularDiets = PopularfoodModel.getPopularDiets();
     });
   }
@@ -75,11 +75,11 @@ class _FoodpageState extends State<Foodpage> {
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            itemCount: diets.length,
+            itemCount: loved.length,
             separatorBuilder: (context, index) => const SizedBox(width: 25),
             itemBuilder: (context, index) {
               return RecommendationItem(
-                food: diets[index],
+                food: loved[index],
                 onAddToOrders: onAddToOrders,
               );
             },
@@ -235,7 +235,7 @@ class _FoodpageState extends State<Foodpage> {
 }
 
 class RecommendationItem extends StatelessWidget {
-  final SellersModel food;
+  final LovedModel food;
   final void Function(CartModel) onAddToOrders;
 
   const RecommendationItem({

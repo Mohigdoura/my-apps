@@ -1,37 +1,37 @@
 import 'package:flutter/material.dart';
 
-class SellersModel {
+class LovedModel {
   String name;
   String iconPath;
   String price;
   Color boxColor;
   bool viewIsSelected;
 
-  SellersModel(
+  LovedModel(
       {required this.name,
       required this.iconPath,
       required this.price,
       required this.boxColor,
       this.viewIsSelected = false});
 
-  static List<SellersModel> getSellers() {
-    List<SellersModel> loved = [];
+  static List<LovedModel> getLoved() {
+    List<LovedModel> loved = [];
 
-    loved.add(SellersModel(
+    loved.add(LovedModel(
         name: 'just a bread',
         iconPath: 'assets/icons/honey-pancakes.svg',
         price: '12DT',
         viewIsSelected: true,
         boxColor: Color(0xff9DCEFF)));
 
-    loved.add(SellersModel(
+    loved.add(LovedModel(
         name: 'niggas food',
         iconPath: 'assets/icons/canai-bread.svg',
         price: '10DT',
         viewIsSelected: false,
         boxColor: Color(0xffEEA4CE)));
 
-    loved.add(SellersModel(
+    loved.add(LovedModel(
         name: 'potatos',
         iconPath: 'assets/icons/canai-bread.svg',
         price: '100DT',
