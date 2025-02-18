@@ -42,81 +42,28 @@ class _FoodpageState extends State<Foodpage> {
       body: ListView(
         children: [
           _buildSearchField(),
-          const SizedBox(height: 40),
-          _buildRestaurantsSection(),
-          const SizedBox(height: 40),
           _buildRecommendationSection(widget.onAddToOrders),
           const SizedBox(height: 40),
-          _buildBestSellersSection(),
+          _buildRestaurantsSection(),
           const SizedBox(height: 40),
         ],
       ),
     );
   }
 
-  Widget _buildRecommendationSection(void Function(CartModel) onAddToOrders) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Padding(
-          padding: EdgeInsets.only(left: 20.0),
-          child: Text(
-            'Recommendation\n',
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+  AppBar _buildAppBar() {
+    return AppBar(
+      title: const Text(
+        'Mohieddine',
+        style: TextStyle(
+          color: Colors.black,
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
         ),
-        const SizedBox(height: 15),
-        SizedBox(
-          height: 240,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            itemCount: loved.length,
-            separatorBuilder: (context, index) => const SizedBox(width: 25),
-            itemBuilder: (context, index) {
-              return RecommendationItem(
-                food: loved[index],
-                onAddToOrders: onAddToOrders,
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBestSellersSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Padding(
-          padding: EdgeInsets.only(left: 20.0),
-          child: Text(
-            'Best Sellers',
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-        const SizedBox(height: 15),
-        ListView.separated(
-          shrinkWrap: true,
-          itemCount: popularDiets.length,
-          separatorBuilder: (context, index) => const SizedBox(height: 5),
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          itemBuilder: (context, index) {
-            return BestSellerItem(
-              sellers: popularDiets[index],
-            );
-          },
-        ),
-      ],
+      ),
+      backgroundColor: Colors.white,
+      elevation: 0.0,
+      centerTitle: true,
     );
   }
 
@@ -143,19 +90,38 @@ class _FoodpageState extends State<Foodpage> {
     );
   }
 
-  AppBar _buildAppBar() {
-    return AppBar(
-      title: const Text(
-        'Mohieddine',
-        style: TextStyle(
-          color: Colors.black,
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
+  Widget _buildRecommendationSection(void Function(CartModel) onAddToOrders) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.only(left: 20.0),
+          child: Text(
+            'Recommendation\n',
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ),
-      ),
-      backgroundColor: Colors.white,
-      elevation: 0.0,
-      centerTitle: true,
+        const SizedBox(height: 15),
+        SizedBox(
+          height: 160,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            itemCount: loved.length,
+            separatorBuilder: (context, index) => const SizedBox(width: 15),
+            itemBuilder: (context, index) {
+              return RecommendationItem(
+                food: loved[index],
+                onAddToOrders: onAddToOrders,
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 
@@ -174,60 +140,58 @@ class _FoodpageState extends State<Foodpage> {
             ),
           ),
         ),
-        const SizedBox(height: 30),
-        SizedBox(
-          height: 120,
-          child: ListView.separated(
-            separatorBuilder: (context, index) => const SizedBox(width: 15),
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.only(left: 20, right: 20),
-            itemCount: restaurants.length,
-            itemBuilder: (context, index) {
-              return GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          RestoPage(restaurant: restaurants[index]),
-                    ),
-                  );
-                },
-                child: Container(
-                  width: 100,
-                  decoration: BoxDecoration(
-                    color: restaurants[index].boxColor.withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(16),
+        const SizedBox(height: 15),
+        ListView.separated(
+          shrinkWrap: true,
+          separatorBuilder: (context, index) => const SizedBox(height: 5),
+          padding:
+              const EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 20),
+          itemCount: restaurants.length,
+          itemBuilder: (context, index) {
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        RestoPage(restaurant: restaurants[index]),
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Container(
-                        width: 50,
-                        height: 50,
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: SvgPicture.asset(restaurants[index].iconPath),
-                        ),
-                      ),
-                      Text(
-                        restaurants[index].name,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w400,
-                          color: Colors.black,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
+                );
+              },
+              child: Container(
+                height: 120,
+                decoration: BoxDecoration(
+                  color: restaurants[index].boxColor.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(16),
                 ),
-              );
-            },
-          ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Container(
+                      width: 50,
+                      height: 50,
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: SvgPicture.asset(restaurants[index].iconPath),
+                      ),
+                    ),
+                    Text(
+                      restaurants[index].name,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w400,
+                        color: Colors.black,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
         ),
       ],
     );
@@ -247,7 +211,7 @@ class RecommendationItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 210,
+      width: 160,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         color: food.boxColor.withOpacity(0.3),
@@ -255,7 +219,11 @@ class RecommendationItem extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          SvgPicture.asset(food.iconPath),
+          SizedBox(
+            height: 80,
+            width: 80,
+            child: SvgPicture.asset(food.iconPath),
+          ),
           Column(
             children: [
               Text(
@@ -263,7 +231,7 @@ class RecommendationItem extends StatelessWidget {
                 style: const TextStyle(
                   fontWeight: FontWeight.w500,
                   color: Colors.black,
-                  fontSize: 16,
+                  fontSize: 14,
                 ),
               ),
               Text(
@@ -288,8 +256,8 @@ class RecommendationItem extends StatelessWidget {
               onAddToOrders(newOrder);
             },
             child: Container(
-              height: 45,
-              width: 130,
+              height: 30,
+              width: 80,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
@@ -309,7 +277,7 @@ class RecommendationItem extends StatelessWidget {
                   style: TextStyle(
                       color: Colors.white,
                       fontSize: 14,
-                      fontWeight: FontWeight.w600),
+                      fontWeight: FontWeight.w500),
                 ),
               ),
             ),
