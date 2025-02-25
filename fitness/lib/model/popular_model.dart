@@ -13,7 +13,7 @@ class PopularfoodModel {
       required this.price,
       required this.boxIsSelected});
 
-  static List<PopularfoodModel> getPopularDiets() {
+  static List<PopularfoodModel> getPopularFood() {
     List<PopularfoodModel> popularDiets = [];
 
     popularDiets.add(PopularfoodModel(

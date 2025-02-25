@@ -1,3 +1,4 @@
+import 'package:fitness/pages/cartpage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../model/cart_model.dart';
@@ -18,7 +19,17 @@ class Foodpage extends StatefulWidget {
 class _FoodpageState extends State<Foodpage> {
   List<RestorantsModel> restaurants = [];
   List<LovedModel> loved = [];
-  List<PopularfoodModel> popularDiets = [];
+  List<PopularfoodModel> popularFood = [];
+  List<CartModel> orders = [];
+
+  // void _addToOrders(CartModel order) {
+  //   setState(() {
+  //     orders.add(order);
+  //   });
+  //   ScaffoldMessenger.of(context).showSnackBar(
+  //     SnackBar(content: Text('${order.name} added to orders!')),
+  //   );
+  // }
 
   @override
   void initState() {
@@ -30,7 +41,7 @@ class _FoodpageState extends State<Foodpage> {
     setState(() {
       restaurants = RestorantsModel.getRestaurants();
       loved = LovedModel.getLoved();
-      popularDiets = PopularfoodModel.getPopularDiets();
+      popularFood = PopularfoodModel.getPopularFood();
     });
   }
 
@@ -64,6 +75,19 @@ class _FoodpageState extends State<Foodpage> {
       backgroundColor: Colors.white,
       elevation: 0.0,
       centerTitle: true,
+      actions: [
+        GestureDetector(
+          onTap: () {
+            Navigator.of(context).push(_createRoute(Cartpage(orders: orders)));
+          },
+          child: Icon(
+            Icons.shopping_cart,
+            color: Colors.black,
+            size: 25,
+          ),
+        ),
+        SizedBox(width: 15)
+      ],
     );
   }
 
@@ -354,4 +378,19 @@ class BestSellerItem extends StatelessWidget {
       ),
     );
   }
+}
+
+Route _createRoute(Widget page) {
+  return PageRouteBuilder(
+    pageBuilder: (context, animation, secondaryAnimation) => page,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      const begin = Offset(1.0, 0.0);
+      const end = Offset.zero;
+      const curve = Curves.easeInOut;
+
+      var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+      return SlideTransition(position: animation.drive(tween), child: child);
+    },
+  );
 }
