@@ -1,5 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fitness/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sign_in_button/sign_in_button.dart';
 
 class Authentication extends StatefulWidget {
   const Authentication({super.key});
@@ -9,6 +13,20 @@ class Authentication extends StatefulWidget {
 
 class _Authenticationpage extends State<Authentication> {
   bool _isDrawerOpen = false;
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  User? _user;
+
+  @override
+  void initState() {
+    super.initState();
+    _auth.authStateChanges().listen((event) {
+      setState(() {
+        _user = event;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,6 +95,7 @@ class _Authenticationpage extends State<Authentication> {
               borderRadius: BorderRadius.circular(30), // Rounded edges
             ),
             child: TextField(
+              controller: _emailController,
               decoration: InputDecoration(
                 labelText: "Email",
                 labelStyle: TextStyle(color: Colors.grey),
@@ -94,6 +113,7 @@ class _Authenticationpage extends State<Authentication> {
               borderRadius: BorderRadius.circular(30),
             ),
             child: TextField(
+              controller: _passwordController,
               obscureText: true,
               decoration: InputDecoration(
                 labelText: "Password",
@@ -109,7 +129,13 @@ class _Authenticationpage extends State<Authentication> {
             width: 390,
             height: 60,
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () async {
+                await AuthService().signup(
+                  email: _emailController.text,
+                  password: _passwordController.text,
+                  context: context,
+                );
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.indigo[900],
                 padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
@@ -178,29 +204,31 @@ class _Authenticationpage extends State<Authentication> {
                   children: [Icon(Icons.fmd_bad), Text('Sign In')],
                 ),
               ),
-              ElevatedButton(
-                onPressed: () {},
-                style:
-                    ElevatedButton.styleFrom(backgroundColor: Colors.grey[50]),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Icon(
-                      Icons.g_mobiledata,
-                      size: 30,
-                    ),
-                    Text('Sign In'),
-                    SizedBox(
-                      width: 10,
-                    )
-                  ],
-                ),
-              ),
+              SignInButton(
+                Buttons.google,
+                onPressed: () {
+                  signInWithGoogle();
+                },
+                text: "sign in",
+              )
             ],
           ),
           SizedBox(height: 130),
         ],
       ),
     );
+  }
+
+  signInWithGoogle() async {
+    GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+    GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+
+    AuthCredential credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth?.accessToken,
+      idToken: googleAuth?.idToken,
+    );
+    UserCredential userCredential =
+        await FirebaseAuth.instance.signInWithCredential(credential);
+    print(userCredential.user?.displayName);
   }
 }
