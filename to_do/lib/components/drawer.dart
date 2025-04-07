@@ -11,7 +11,7 @@ class MyDrawer extends StatelessWidget {
       backgroundColor: Theme.of(context).colorScheme.background,
       child: Column(
         children: [
-          SizedBox(height: 200, child: Icon(Icons.note)),
+          SizedBox(height: 200, child: Icon(Icons.edit, size: 40)),
           // note tile
           DrawerTile(
             title: "Notes",

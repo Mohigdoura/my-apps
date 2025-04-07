@@ -1,9 +1,12 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do/components/drawer.dart';
+import 'package:to_do/components/note_tile.dart';
 import 'package:to_do/models/note.dart';
 import 'package:to_do/models/note_database.dart';
+import 'package:to_do/theme/theme_provider.dart';
 
 class NotesPage extends StatefulWidget {
   const NotesPage({super.key});
@@ -27,6 +30,7 @@ class _NotesPageState extends State<NotesPage> {
       context: context,
       builder:
           (context) => AlertDialog(
+            backgroundColor: Theme.of(context).colorScheme.background,
             title: Text("Add Note"),
             content: TextField(
               controller: textController,
@@ -80,6 +84,7 @@ class _NotesPageState extends State<NotesPage> {
       context: context,
       builder:
           (context) => AlertDialog(
+            backgroundColor: Theme.of(context).colorScheme.background,
             title: Text("Update Note"),
             content: TextField(
               controller: textController,
@@ -138,9 +143,12 @@ class _NotesPageState extends State<NotesPage> {
         foregroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Theme.of(context).colorScheme.secondary,
+        backgroundColor: Theme.of(context).colorScheme.primary,
         onPressed: createNote,
-        child: const Icon(Icons.add),
+        child: Icon(
+          Icons.add,
+          color: Theme.of(context).colorScheme.inversePrimary,
+        ),
       ),
       backgroundColor: Theme.of(context).colorScheme.background,
       drawer: MyDrawer(),
@@ -170,34 +178,10 @@ class _NotesPageState extends State<NotesPage> {
                         itemCount: currentNotes.length,
                         itemBuilder: (context, index) {
                           final note = currentNotes[index];
-                          return ListTile(
-                            title: Text(
-                              note.text,
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.tertiary,
-                              ),
-                            ),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  onPressed: () => updateNote(note),
-                                  icon: Icon(
-                                    Icons.edit,
-                                    color:
-                                        Theme.of(context).colorScheme.tertiary,
-                                  ),
-                                ),
-                                IconButton(
-                                  onPressed: () => deleteNote(note.id),
-                                  icon: Icon(
-                                    Icons.delete,
-                                    color:
-                                        Theme.of(context).colorScheme.tertiary,
-                                  ),
-                                ),
-                              ],
-                            ),
+                          return NoteTile(
+                            text: note.text,
+                            onEditPressed: () => updateNote(note),
+                            onDeletePressed: () => deleteNote(note.id),
                           );
                         },
                       ),

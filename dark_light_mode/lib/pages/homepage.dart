@@ -1,14 +1,14 @@
 import 'package:dark_light_mode/components/box.dart';
 import 'package:dark_light_mode/components/button.dart';
-import 'package:dark_light_mode/theme/themeprovider.dart';
+import 'package:dark_light_mode/riverpod_data.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
       body: Center(
@@ -17,7 +17,7 @@ class HomePage extends StatelessWidget {
           child: MyButton(
             color: Theme.of(context).colorScheme.secondary,
             onTap: () {
-              Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
+              ref.read(riverpopTheme.notifier).toggleTheme();
             },
           ),
         ),
