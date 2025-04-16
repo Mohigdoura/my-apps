@@ -55,55 +55,63 @@ class _NotePageState extends State<NotePage> {
       appBar: AppBar(),
       body: Padding(
         padding: const EdgeInsets.all(15.0),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 31, 31, 31),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: TextField(
-                controller: controller,
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  hintText: 'T I T L E :\n\nType your note...',
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 31, 31, 31),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                maxLines: null,
-              ),
-            ),
-            SizedBox(height: 10),
-            Center(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                spacing: 5,
-                children: [
-                  Container(
-                    margin: EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade800,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: MaterialButton(
-                      onPressed: saveNote,
-                      child: const Text('Save', style: TextStyle(fontSize: 16)),
-                    ),
+                child: TextField(
+                  controller: controller,
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    hintText: 'T I T L E :\n\nType your note...',
                   ),
-                  Container(
-                    margin: EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade800,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: MaterialButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('Back', style: TextStyle(fontSize: 16)),
-                    ),
-                  ),
-                ],
+                  maxLines: null,
+                ),
               ),
-            ),
-          ],
+              SizedBox(height: 10),
+              Center(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  spacing: 5,
+                  children: [
+                    Container(
+                      margin: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade800,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: MaterialButton(
+                        onPressed: saveNote,
+                        child: const Text(
+                          'Save',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade800,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: MaterialButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text(
+                          'Back',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

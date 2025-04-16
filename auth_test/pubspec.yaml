@@ -30,14 +30,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  firebase_core: ^2.15.1
-  firebase_auth: ^4.9.0
-  cloud_firestore: ^4.9.1
-  provider: ^6.0.5
   cached_network_image: ^3.2.3
   intl: ^0.18.1
   flutter_rating_bar: ^4.0.1
   shared_preferences: ^2.2.0
+  image_cropper: ^9.1.0 
+  flutter_image_compress: 
   geolocator: ^10.0.0
   geocoding: ^2.1.0
   google_maps_flutter: ^2.3.0
@@ -48,6 +46,11 @@ dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
+  flutter_riverpod: ^2.6.1
+  supabase_flutter: ^2.8.4
+  image_picker: ^1.1.2
+  crop_your_image: ^2.0.0
+  
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

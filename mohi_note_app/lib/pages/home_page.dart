@@ -54,7 +54,31 @@ class _HomePageState extends State<HomePage> {
       itemBuilder: (context, index) {
         final note = currentNotes[index];
         return MyNoteTile(
-          onLongPress: () => noteDatabase.deleteNote(note.id),
+          onLongPress:
+              () => showDialog(
+                context: context,
+                builder: (_) {
+                  return AlertDialog(
+                    title: Text("Delete Note"),
+                    content: Text("Are you sure you want to delete this note?"),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          context.read<NoteDatabase>().deleteNote(note.id);
+                          Navigator.pop(context);
+                        },
+                        child: Text("Delete"),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text("Cancel"),
+                      ),
+                    ],
+                  );
+                },
+              ),
           onTap: () {
             Navigator.push(
               context,

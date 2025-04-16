@@ -26,23 +26,35 @@ class Shop extends ChangeNotifier {
   ];
 
   //user cart
-  final List<Product> _cart = [];
+  final Map<Product, int> _cart = {};
+  int _counter = 0;
+  int get counter => _counter;
 
   //get product list
   List<Product> get shop => _shop;
 
   //get user cart
-  List<Product> get cart => _cart;
+  Map<Product, int> get cart => _cart;
 
   //add item to cart
   void addToCart(Product item) {
-    _cart.add(item);
+    if (!_cart.containsKey(item)) {
+      _cart[item] = 1;
+    } else {
+      _cart.update(item, (value) => value + 1, ifAbsent: () => 1);
+    }
+    _counter++;
     notifyListeners();
   }
 
   // remove item from cart
   void removeFromCart(Product item) {
-    _cart.remove(item);
+    if (_cart[item] == 1) {
+      _cart.remove(item);
+    } else {
+      _cart.update(item, (value) => value - 1, ifAbsent: () => 1);
+    }
+    _counter--;
     notifyListeners();
   }
 }

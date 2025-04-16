@@ -23,7 +23,26 @@ class ShopPage extends StatelessWidget {
             onPressed: () {
               Navigator.pushNamed(context, '/cart_page');
             },
-            icon: Icon(Icons.shopping_cart),
+            icon: Stack(
+              children: [
+                Icon(Icons.shopping_cart),
+                //show number of items in cart
+                Positioned(
+                  left: 0,
+                  bottom: 0,
+                  child: CircleAvatar(
+                    radius: 7,
+                    backgroundColor: Colors.red,
+                    child: Center(
+                      child: Text(
+                        context.watch<Shop>().counter.toString(),
+                        style: TextStyle(color: Colors.white, fontSize: 10),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),

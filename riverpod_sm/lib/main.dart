@@ -48,17 +48,99 @@ class MyHomePage extends ConsumerStatefulWidget {
   ConsumerState<MyHomePage> createState() => _MyHomePageState();
 }
 
+final nameController = TextEditingController();
+final typeController = TextEditingController();
+final descripController = TextEditingController();
+
 class _MyHomePageState extends ConsumerState<MyHomePage> {
-  void _incrementCounter() {
-    ref.read(counterProvider.notifier).increment();
+  void _changeName() {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text("Name"),
+            content: TextField(controller: nameController),
+            actions: [
+              MaterialButton(
+                child: Center(child: Text("save")),
+                onPressed: () {
+                  Navigator.pop(context);
+                  ref
+                      .read(userProvider.notifier)
+                      .changeName(nameController.text);
+                  nameController.clear();
+                },
+              ),
+              MaterialButton(
+                child: Center(child: Text("cancel")),
+                onPressed: () {
+                  Navigator.pop(context);
+                  nameController.clear();
+                },
+              ),
+            ],
+          ),
+    );
   }
 
-  void _decrementCounter() {
-    ref.read(counterProvider.notifier).decrement();
+  void _changeType() {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text("Type"),
+            content: TextField(controller: typeController),
+            actions: [
+              MaterialButton(
+                child: Center(child: Text("save")),
+                onPressed: () {
+                  Navigator.pop(context);
+                  ref
+                      .read(userProvider.notifier)
+                      .changeType(typeController.text);
+                  typeController.clear();
+                },
+              ),
+              MaterialButton(
+                child: Center(child: Text("cancel")),
+                onPressed: () {
+                  Navigator.pop(context);
+                  typeController.clear();
+                },
+              ),
+            ],
+          ),
+    );
   }
 
-  void _resetCounter() {
-    ref.read(counterProvider.notifier).reset();
+  void _changeDescrip() {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text("Description"),
+            content: TextField(controller: descripController),
+            actions: [
+              MaterialButton(
+                child: Center(child: Text("save")),
+                onPressed: () {
+                  Navigator.pop(context);
+                  ref
+                      .read(userProvider.notifier)
+                      .changeDescrip(descripController.text);
+                  descripController.clear();
+                },
+              ),
+              MaterialButton(
+                child: Center(child: Text("cancel")),
+                onPressed: () {
+                  Navigator.pop(context);
+                  descripController.clear();
+                },
+              ),
+            ],
+          ),
+    );
   }
 
   @override
@@ -92,9 +174,17 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
           // wireframe for each widget.
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text('You have pushed the button this many times:'),
+            const Text('You are:'),
             Text(
-              ref.watch(counterProvider).toString(),
+              "name: ${ref.watch(userProvider).name.toString()}",
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            Text(
+              "type: ${ref.watch(userProvider).type.toString()}",
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            Text(
+              "descrip: ${ref.watch(userProvider).descrip.toString()}",
               style: Theme.of(context).textTheme.headlineMedium,
             ),
           ],
@@ -104,19 +194,16 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
         mainAxisSize: MainAxisSize.min, // Set the main axis size to min
         children: [
           FloatingActionButton(
-            onPressed: _incrementCounter,
-            tooltip: 'Increment',
-            child: const Icon(Icons.add),
+            onPressed: _changeName,
+            child: const Text("Name"),
           ),
           FloatingActionButton(
-            onPressed: _decrementCounter,
-            tooltip: 'Decrement',
-            child: const Icon(Icons.remove),
+            onPressed: _changeType,
+            child: const Text("Type"),
           ),
           FloatingActionButton(
-            onPressed: _resetCounter,
-            tooltip: 'Reset',
-            child: const Icon(Icons.restore),
+            onPressed: _changeDescrip,
+            child: const Text("Descrip"),
           ),
         ],
       ),

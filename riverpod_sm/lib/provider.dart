@@ -1,45 +1,54 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_sm/model/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // Persistent Counter Provider
-final counterProvider = StateNotifierProvider<Counter, int>((ref) {
-  return Counter();
+final userProvider = StateNotifierProvider<UserEdit, User>((ref) {
+  return UserEdit();
 });
 
 // Save counter value
-Future<void> saveCounter(int value) async {
+Future<void> saveUser(User user) async {
   final prefs = await SharedPreferences.getInstance();
-  await prefs.setInt('counter', value);
+  await prefs.setString('name', user.name);
+  await prefs.setString('type', user.type);
+  await prefs.setString('descrip', user.descrip);
 }
 
 // Get counter value
-Future<int> getCounter() async {
+Future<User> getUser() async {
   final prefs = await SharedPreferences.getInstance();
-  return prefs.getInt('counter') ?? 0;
+  final name = prefs.getString('name') ?? '';
+  final type = prefs.getString('type') ?? '';
+  final descrip = prefs.getString('descrip') ?? '';
+  return User(name: name, type: type, descrip: descrip);
 }
 
 // Counter StateNotifier
-class Counter extends StateNotifier<int> {
-  Counter() : super(0) {
-    _loadCounter();
+class UserEdit extends StateNotifier<User> {
+  UserEdit() : super(User(name: '', type: '', descrip: '')) {
+    _loadUser();
   }
 
-  Future<void> _loadCounter() async {
-    state = await getCounter();
+  Future<void> _loadUser() async {
+    state = await getUser();
   }
 
-  void increment() {
-    state++;
-    saveCounter(state);
+  void changeName(String name) {
+    final updated = User(name: name, type: state.type, descrip: state.descrip);
+    state = updated;
+    saveUser(updated);
   }
 
-  void decrement() {
-    state--;
-    saveCounter(state);
+  void changeType(String type) {
+    final updated = User(name: state.name, type: type, descrip: state.descrip);
+    state = updated;
+    saveUser(updated);
   }
 
-  void reset() {
-    state = 0;
-    saveCounter(state);
+  void changeDescrip(String descrip) {
+    final updated = User(name: state.name, type: state.type, descrip: descrip);
+    state = updated;
+    saveUser(updated);
   }
 }

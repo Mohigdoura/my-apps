@@ -12,7 +12,7 @@ class AuthService {
   }
 
   String getCurrentUserName() {
-    return auth.currentUser!.displayName!;
+    return auth.currentUser!.displayName ?? "No Name";
   }
 
   // sign in with email and password

@@ -9,29 +9,37 @@ class CartPage extends StatelessWidget {
 
   //remove item from the cart
   void removeItemFromCart(BuildContext context, Product product) {
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            content: Text('remove this to your cart?'),
-            actions: [
-              MaterialButton(
-                child: Text('Cancel'),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              ),
-              MaterialButton(
-                child: Text('Yes'),
-                onPressed: () {
-                  Navigator.pop(context);
-                  //add to cart
-                  context.read<Shop>().removeFromCart(product);
-                },
-              ),
-            ],
-          ),
-    );
+    if (context.read<Shop>().cart[product] != 1) {
+      context.read<Shop>().removeFromCart(product);
+    } else {
+      showDialog(
+        context: context,
+        builder:
+            (context) => AlertDialog(
+              content: Text('remove this to your cart?'),
+              actions: [
+                MaterialButton(
+                  child: Text('Cancel'),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+                MaterialButton(
+                  child: Text('Yes'),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    //add to cart
+                    context.read<Shop>().removeFromCart(product);
+                  },
+                ),
+              ],
+            ),
+      );
+    }
+  }
+
+  void addCount(BuildContext context, Product product) {
+    context.read<Shop>().addToCart(product);
   }
 
   // user pressed pay button
@@ -65,7 +73,7 @@ class CartPage extends StatelessWidget {
                       itemCount: cart.length,
                       itemBuilder: (context, index) {
                         // get individual item in the cart
-                        final item = cart[index];
+                        final item = cart.keys.elementAt(index);
 
                         //return as list tile
                         return ListTile(
@@ -78,9 +86,23 @@ class CartPage extends StatelessWidget {
                           ),
                           title: Text(item.name),
                           subtitle: Text('\$${item.price.toStringAsFixed(2)}'),
-                          trailing: IconButton(
-                            icon: Icon(Icons.delete),
-                            onPressed: () => removeItemFromCart(context, item),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: Icon(Icons.add_circle),
+                                onPressed: () => addCount(context, item),
+                              ),
+                              Text(
+                                cart[item].toString(),
+                                style: TextStyle(fontSize: 16),
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.remove_circle),
+                                onPressed:
+                                    () => removeItemFromCart(context, item),
+                              ),
+                            ],
                           ),
                         );
                       },
