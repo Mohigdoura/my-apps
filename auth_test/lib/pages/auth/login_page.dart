@@ -76,6 +76,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               ),
               SizedBox(height: 15),
               Stack(
+                alignment: Alignment.centerRight,
                 children: [
                   MyTextField(
                     controller: passwordController,
@@ -83,13 +84,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     obscureText: obscureText,
                     keyboardType: TextInputType.visiblePassword,
                   ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: IconButton(
-                      onPressed: toggleVisibility,
-                      icon: Icon(
-                        obscureText ? Icons.visibility_off : Icons.visibility,
-                      ),
+                  IconButton(
+                    onPressed: toggleVisibility,
+                    icon: Icon(
+                      obscureText ? Icons.visibility_off : Icons.visibility,
                     ),
                   ),
                 ],
@@ -110,10 +108,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text("don't hava an account? "),
+                  Text("Don't hava an account? "),
                   GestureDetector(
                     onTap: widget.toggle,
-                    child: Text("Resgister now"),
+                    child: Text(
+                      "Resgister now",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ],
               ),

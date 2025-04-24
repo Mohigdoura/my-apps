@@ -101,6 +101,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
               ),
               SizedBox(height: 15),
               Stack(
+                alignment: Alignment.centerRight,
                 children: [
                   MyTextField(
                     controller: passwordController,
@@ -108,19 +109,17 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                     obscureText: obscureText,
                     keyboardType: TextInputType.visiblePassword,
                   ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: IconButton(
-                      onPressed: toggleVisibility,
-                      icon: Icon(
-                        obscureText ? Icons.visibility_off : Icons.visibility,
-                      ),
+                  IconButton(
+                    onPressed: toggleVisibility,
+                    icon: Icon(
+                      obscureText ? Icons.visibility_off : Icons.visibility,
                     ),
                   ),
                 ],
               ),
               SizedBox(height: 15),
               Stack(
+                alignment: Alignment.centerRight,
                 children: [
                   MyTextField(
                     controller: confirmPasswordController,
@@ -128,13 +127,10 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                     obscureText: obscureText,
                     keyboardType: TextInputType.visiblePassword,
                   ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: IconButton(
-                      onPressed: toggleVisibility,
-                      icon: Icon(
-                        obscureText ? Icons.visibility_off : Icons.visibility,
-                      ),
+                  IconButton(
+                    onPressed: toggleVisibility,
+                    icon: Icon(
+                      obscureText ? Icons.visibility_off : Icons.visibility,
                     ),
                   ),
                 ],
@@ -158,7 +154,10 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                   Text("Already hava an account? "),
                   GestureDetector(
                     onTap: widget.toggle,
-                    child: Text("Login now"),
+                    child: Text(
+                      "Login now",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ],
               ),

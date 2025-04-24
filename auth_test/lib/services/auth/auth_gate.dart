@@ -1,4 +1,4 @@
-import 'package:auth_test/pages/home_page.dart';
+import 'package:auth_test/pages/user/home_page.dart';
 import 'package:auth_test/pages/auth/login_register_page.dart';
 import 'package:auth_test/pages/restaurant/restau_page.dart';
 import 'package:auth_test/services/provider/auth_notifier.dart';

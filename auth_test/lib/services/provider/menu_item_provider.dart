@@ -118,22 +118,28 @@ class MenuItemsNotifier extends StateNotifier<AsyncValue<List<MenuItem>>> {
 
   Future<void> deleteMenuItem(MenuItem menuItem) async {
     try {
-      // Delete from menu table
-      await _supabaseClient.from('menu').delete().eq('id', menuItem.id!);
-
       // Delete image only if URL exists
       if (menuItem.imageUrl.isNotEmpty) {
         const basePath =
-            "https://gdiygxyqegubbghgtyft.supabase.co/storage/v1/object/public/images/";
+            "https://gdiygxyqegubbghgtyft.supabase.co/storage/v1/object/public/images/"; // Ensure trailing slash
 
-        // Verify URL format before processing
         if (menuItem.imageUrl.startsWith(basePath)) {
           final imagePath = menuItem.imageUrl.substring(basePath.length);
-          await _supabaseClient.storage.from('images').remove([imagePath]);
+          print("Attempting to delete image at path: $imagePath");
+
+          // Pass the full path as a single string in the list
+          final response = await _supabaseClient.storage.from('images').remove([
+            imagePath,
+          ]);
+
+          print("Storage deletion response: $response");
         } else {
           print("Invalid image URL format: ${menuItem.imageUrl}");
         }
       }
+
+      // Delete from menu table
+      await _supabaseClient.from('menu').delete().eq('id', menuItem.id!);
     } catch (error, stackTrace) {
       print("Delete error: $error\n$stackTrace");
       throw Exception("Failed to delete: ${error.toString()}");

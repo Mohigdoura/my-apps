@@ -1,17 +1,20 @@
-import 'package:auth_test/components/restaurant_food_tile.dart';
-import 'package:auth_test/pages/restaurant/add_item_page.dart';
+import 'package:auth_test/components/food_item_card.dart';
+import 'package:auth_test/models/cart_model.dart';
+import 'package:auth_test/pages/user/cart_page.dart';
 import 'package:auth_test/services/auth/auth_service.dart';
 import 'package:auth_test/services/provider/menu_item_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class RestauPage extends ConsumerWidget {
-  const RestauPage({super.key});
+class HomePage extends ConsumerWidget {
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authService = AuthService();
     final menuItemsNotifier = ref.read(menuItemsProvider.notifier);
+    final cart = ref.watch(cartProvider);
     final theme = Theme.of(context);
 
     void logout() async {
@@ -48,12 +51,12 @@ class RestauPage extends ConsumerWidget {
       }
     }
 
-    void navigateToAddItem() {
+    void navigateToCart() {
+      HapticFeedback.mediumImpact();
       Navigator.push(
         context,
         PageRouteBuilder(
-          pageBuilder:
-              (context, animation, secondaryAnimation) => AddMenuItemPage(),
+          pageBuilder: (context, animation, secondaryAnimation) => CartPage(),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             const begin = Offset(1.0, 0.0);
             const end = Offset.zero;
@@ -82,7 +85,7 @@ class RestauPage extends ConsumerWidget {
           tooltip: 'Logout',
         ),
         title: Text(
-          "Restaurant Menu",
+          "Food Menu",
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.white,
@@ -93,23 +96,45 @@ class RestauPage extends ConsumerWidget {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
-            child: IconButton(
-              onPressed: navigateToAddItem,
-              icon: Icon(
-                Icons.add_circle_outline,
-                color: Colors.white,
-                size: 28,
-              ),
-              tooltip: 'Add New Item',
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                IconButton(
+                  onPressed: navigateToCart,
+                  icon: Icon(
+                    Icons.shopping_cart_rounded,
+                    color: Colors.white,
+                    size: 28,
+                  ),
+                  tooltip: 'View Cart',
+                ),
+                if (cart.getTotalItems() > 0)
+                  Positioned(
+                    right: 0,
+                    top: 8,
+                    child: Container(
+                      padding: EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                      constraints: BoxConstraints(minWidth: 20, minHeight: 20),
+                      child: Center(
+                        child: Text(
+                          cart.getTotalItems().toString(),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: navigateToAddItem,
-        backgroundColor: theme.colorScheme.primary,
-        elevation: 4,
-        child: Icon(Icons.add, color: Colors.white),
       ),
       body: RefreshIndicator(
         color: theme.colorScheme.primary,
@@ -124,20 +149,24 @@ class RestauPage extends ConsumerWidget {
               data:
                   (menuItems) =>
                       menuItems.isEmpty
-                          ? _buildEmptyState(context, navigateToAddItem)
+                          ? _buildEmptyState()
                           : Padding(
                             padding: const EdgeInsets.all(12.0),
-                            child: ListView.builder(
+                            child: GridView.builder(
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                    childAspectRatio: 0.75,
+                                    crossAxisSpacing: 12,
+                                    mainAxisSpacing: 12,
+                                  ),
                               itemCount: menuItems.length,
                               itemBuilder: (context, index) {
                                 if (menuItems[index].id!.isEmpty) {
                                   return _buildErrorItem();
                                 }
                                 final menuItem = menuItems[index];
-                                return Padding(
-                                  padding: const EdgeInsets.only(bottom: 12.0),
-                                  child: RestaurantFoodTile(menuItem: menuItem),
-                                );
+                                return FoodItemCard(menuItem: menuItem);
                               },
                             ),
                           ),
@@ -153,7 +182,7 @@ class RestauPage extends ConsumerWidget {
                         ),
                         SizedBox(height: 16),
                         Text(
-                          "Loading menu items...",
+                          "Loading menu...",
                           style: TextStyle(
                             color: Colors.grey[600],
                             fontSize: 16,
@@ -171,10 +200,49 @@ class RestauPage extends ConsumerWidget {
           },
         ),
       ),
+      bottomNavigationBar:
+          cart.cart.isNotEmpty
+              ? AnimatedContainer(
+                duration: Duration(milliseconds: 300),
+                height: 70,
+                margin: EdgeInsets.symmetric(horizontal: 16, vertical: 25),
+                child: ElevatedButton.icon(
+                  onPressed: navigateToCart,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: theme.colorScheme.primary,
+                    foregroundColor: Colors.white,
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  icon: Icon(Icons.shopping_bag_outlined),
+                  label: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "${cart.getTotalItems()} items",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      Text(
+                        "\$${cart.getTotalPrice().toStringAsFixed(2)}",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+              : null,
     );
   }
 
-  Widget _buildEmptyState(BuildContext context, VoidCallback onAddItem) {
+  Widget _buildEmptyState() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -182,7 +250,7 @@ class RestauPage extends ConsumerWidget {
           Icon(Icons.restaurant_menu, size: 100, color: Colors.grey[400]),
           SizedBox(height: 24),
           Text(
-            "No Menu Items Added Yet",
+            "No Menu Items Available",
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
@@ -191,14 +259,14 @@ class RestauPage extends ConsumerWidget {
           ),
           SizedBox(height: 8),
           Text(
-            "Add your first menu item",
+            "Pull down to refresh",
             style: TextStyle(fontSize: 16, color: Colors.grey[600]),
           ),
           SizedBox(height: 32),
           ElevatedButton.icon(
-            onPressed: onAddItem,
-            icon: Icon(Icons.add),
-            label: Text("Add Menu Item"),
+            onPressed: () {},
+            icon: Icon(Icons.refresh),
+            label: Text("Refresh"),
             style: ElevatedButton.styleFrom(
               padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
@@ -244,7 +312,7 @@ class RestauPage extends ConsumerWidget {
             ),
             SizedBox(height: 24),
             Text(
-              'Unable to Load Menu Items',
+              'Unable to Load Menu',
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
