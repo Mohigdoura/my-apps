@@ -17,8 +17,28 @@ class AddMenuItemPage extends ConsumerStatefulWidget {
 class _MenuItemFormState extends ConsumerState<AddMenuItemPage> {
   late final TextEditingController nameController;
   late final TextEditingController descController;
-  late final TextEditingController typeController;
   late final TextEditingController priceController;
+  late final TextEditingController addonsController;
+
+  // Define your list of categories
+  final List<String> categories = [
+    'Appetizer',
+    'Main Course',
+    'Dessert',
+    'Beverage',
+    'Side Dish',
+    'Breakfast',
+    'Lunch',
+    'Dinner',
+    'Snack',
+    'Soup',
+    'Salad',
+    'Vegan',
+    'Vegetarian',
+    'Special',
+  ];
+
+  String? selectedCategory;
   late bool isAvailable;
   String? error;
   File? _imageFile;
@@ -42,12 +62,13 @@ class _MenuItemFormState extends ConsumerState<AddMenuItemPage> {
           children:
               options.map((option) {
                 IconData icon;
-                if (option == 'Gallery')
+                if (option == 'Gallery') {
                   icon = Icons.photo_library;
-                else if (option == 'Camera')
+                } else if (option == 'Camera') {
                   icon = Icons.camera_alt;
-                else
+                } else {
                   icon = Icons.delete;
+                }
 
                 return SimpleDialogOption(
                   onPressed: () => Navigator.pop(context, option),
@@ -94,14 +115,16 @@ class _MenuItemFormState extends ConsumerState<AddMenuItemPage> {
     if (compressedFile != null) {
       final sizeInMB = await compressedFile.length() / (1024 * 1024);
       if (sizeInMB > 1) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              "Image too big (${sizeInMB.toStringAsFixed(2)} MB). Max allowed is 1MB.",
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                "Image too big (${sizeInMB.toStringAsFixed(2)} MB). Max allowed is 1MB.",
+              ),
+              backgroundColor: Colors.red,
             ),
-            backgroundColor: Colors.red,
-          ),
-        );
+          );
+        }
         return null;
       }
       return File(compressedFile.path);
@@ -114,15 +137,20 @@ class _MenuItemFormState extends ConsumerState<AddMenuItemPage> {
     super.initState();
     nameController = TextEditingController();
     descController = TextEditingController();
-    typeController = TextEditingController();
     priceController = TextEditingController();
+    addonsController = TextEditingController();
     isAvailable = widget.menuItem?.isavailable ?? true;
 
     if (widget.menuItem != null) {
       nameController.text = widget.menuItem!.name;
       descController.text = widget.menuItem!.desc;
-      typeController.text = widget.menuItem!.type;
+      selectedCategory = widget.menuItem!.type;
       priceController.text = widget.menuItem!.price.toString();
+
+      // If the existing category is not in our list, add it
+      if (selectedCategory != null && !categories.contains(selectedCategory)) {
+        categories.add(selectedCategory!);
+      }
     }
   }
 
@@ -130,7 +158,6 @@ class _MenuItemFormState extends ConsumerState<AddMenuItemPage> {
   void dispose() {
     nameController.dispose();
     descController.dispose();
-    typeController.dispose();
     priceController.dispose();
     super.dispose();
   }
@@ -144,6 +171,11 @@ class _MenuItemFormState extends ConsumerState<AddMenuItemPage> {
 
     if (_imageFile == null && widget.menuItem?.imageUrl == null) {
       setState(() => error = "Please add a photo");
+      return;
+    }
+
+    if (selectedCategory == null) {
+      setState(() => error = "Please select a category");
       return;
     }
 
@@ -180,11 +212,11 @@ class _MenuItemFormState extends ConsumerState<AddMenuItemPage> {
 
       // Create/update menu item
       final newMenuItem = MenuItem(
-        id: widget.menuItem?.id ?? '',
+        id: widget.menuItem?.id,
         name: nameController.text.trim(),
         desc: descController.text.trim(),
         price: price,
-        type: typeController.text.trim(),
+        type: selectedCategory!, // Use the selected category
         imageUrl: imageUrl ?? widget.menuItem?.imageUrl ?? '',
         isavailable: isAvailable,
       );
@@ -251,7 +283,10 @@ class _MenuItemFormState extends ConsumerState<AddMenuItemPage> {
                 const SizedBox(height: 24),
                 _buildFormFields(),
                 const SizedBox(height: 16),
+                _buildCategoryDropdown(theme),
+                const SizedBox(height: 16),
                 _buildAvailabilitySwitch(theme),
+
                 if (error != null)
                   Padding(
                     padding: const EdgeInsets.only(top: 16.0),
@@ -477,19 +512,149 @@ class _MenuItemFormState extends ConsumerState<AddMenuItemPage> {
             return null;
           },
         ),
-        SizedBox(height: 16),
-        _buildTextField(
-          label: "Category",
-          controller: typeController,
-          icon: Icons.category,
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return "Please enter item category";
-            }
-            return null;
-          },
+      ],
+    );
+  }
+
+  // New method for building the category dropdown
+  Widget _buildCategoryDropdown(ThemeData theme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Category",
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Colors.grey[800],
+          ),
+        ),
+        SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey[300]!),
+          ),
+          child: DropdownButtonFormField<String>(
+            value: selectedCategory,
+            decoration: InputDecoration(
+              prefixIcon: Icon(Icons.category),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none, // Remove the default border
+              ),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 16,
+              ),
+              filled: true,
+              fillColor: Colors.white,
+            ),
+            hint: Text(
+              "Select a category",
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+            isExpanded: true,
+            items:
+                categories.map((String category) {
+                  return DropdownMenuItem<String>(
+                    value: category,
+                    child: Text(category),
+                  );
+                }).toList(),
+            onChanged: (String? newValue) {
+              setState(() {
+                selectedCategory = newValue;
+              });
+            },
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return "Please select a category";
+              }
+              return null;
+            },
+            dropdownColor: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+
+        SizedBox(height: 8),
+        // Option to add a custom category
+        GestureDetector(
+          onTap: () => _showAddCategoryDialog(theme),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.add_circle_outline,
+                size: 16,
+                color: theme.colorScheme.primary,
+              ),
+              SizedBox(width: 4),
+              Text(
+                "Add custom category",
+                style: TextStyle(
+                  color: theme.colorScheme.primary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
         ),
       ],
+    );
+  }
+
+  // Dialog to add a custom category
+  Future<void> _showAddCategoryDialog(ThemeData theme) async {
+    final TextEditingController customCategoryController =
+        TextEditingController();
+
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Add Custom Category'),
+          content: TextField(
+            controller: customCategoryController,
+            decoration: InputDecoration(
+              hintText: 'Enter category name',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            textCapitalization: TextCapitalization.words,
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final newCategory = customCategoryController.text.trim();
+                if (newCategory.isNotEmpty &&
+                    !categories.contains(newCategory)) {
+                  setState(() {
+                    categories.add(newCategory);
+                    selectedCategory = newCategory;
+                  });
+                }
+                Navigator.pop(context);
+              },
+              child: Text('Add'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: theme.colorScheme.primary,
+                foregroundColor: Colors.white,
+              ),
+            ),
+          ],
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        );
+      },
     );
   }
 

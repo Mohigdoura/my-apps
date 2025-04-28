@@ -64,7 +64,7 @@ class MenuItemsNotifier extends StateNotifier<AsyncValue<List<MenuItem>>> {
               // Log invalid items but continue loading others
               debugPrint('Error parsing menu item: $e\n$stackTrace');
               return MenuItem(
-                id: 'invalid-${DateTime.now().millisecondsSinceEpoch}',
+                id: DateTime.now().millisecondsSinceEpoch,
                 name: 'Invalid Item',
                 desc: '',
                 price: 0.0,
@@ -185,10 +185,7 @@ final filteredMenuItemsProvider =
       );
     });
 
-final menuItemProvider = Provider.family<AsyncValue<MenuItem?>, String>((
-  ref,
-  id,
-) {
+final menuItemProvider = Provider.family<AsyncValue<MenuItem?>, int>((ref, id) {
   final menuItemsAsyncValue = ref.watch(menuItemsProvider);
 
   return menuItemsAsyncValue.when(
@@ -197,7 +194,7 @@ final menuItemProvider = Provider.family<AsyncValue<MenuItem?>, String>((
         (item) => item.id == id,
         orElse:
             () => MenuItem(
-              id: '',
+              id: -1,
               name: '',
               desc: '',
               price: 0.0,

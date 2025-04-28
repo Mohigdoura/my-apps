@@ -1,6 +1,6 @@
-import 'package:auth_test/pages/user/home_page.dart';
+import 'package:auth_test/pages/restaurant/restaurant_main_page.dart';
 import 'package:auth_test/pages/auth/login_register_page.dart';
-import 'package:auth_test/pages/restaurant/restau_page.dart';
+import 'package:auth_test/pages/user/user_main_page.dart';
 import 'package:auth_test/services/provider/auth_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,9 +21,9 @@ class AuthGate extends ConsumerWidget {
     }
 
     if (authState.userType == 'restaurant') {
-      return RestauPage();
+      return RestaurantMainPage();
     } else {
-      return const HomePage();
+      return const UserMainPage();
     }
   }
 }

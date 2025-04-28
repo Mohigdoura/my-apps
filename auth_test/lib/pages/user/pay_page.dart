@@ -1,8 +1,14 @@
-import 'package:auth_test/components/my_text_field.dart';
 import 'package:auth_test/models/cart_model.dart';
+import 'package:auth_test/models/order_item_model.dart';
+import 'package:auth_test/models/order_model.dart';
+import 'package:auth_test/pages/user/info_page.dart';
+import 'package:auth_test/services/provider/auth_notifier.dart';
+import 'package:auth_test/services/provider/order_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+final specialInstructionsProvider = StateProvider<String>((ref) => '');
 
 class PayPage extends ConsumerStatefulWidget {
   const PayPage({super.key});
@@ -32,6 +38,11 @@ class _PayPageState extends ConsumerState<PayPage>
       curve: Curves.easeInOut,
     );
     _animationController.forward();
+
+    // Add listener to rebuild when text changes
+    specialInstructionsController.addListener(() {
+      setState(() {});
+    });
   }
 
   @override
@@ -42,23 +53,59 @@ class _PayPageState extends ConsumerState<PayPage>
     super.dispose();
   }
 
-  void _processPayment() {
-    // Show loading state
-    setState(() {
-      _isProcessingPayment = true;
-    });
+  void _processPayment() async {
+    final ordersNotifier = ref.read(ordersProvider.notifier);
+    final auth = ref.read(authProvider.notifier);
+    final cart = ref.read(cartProvider);
+    final name = await auth.getUserName();
 
-    // Simulate payment processing
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) {
-        setState(() {
-          _isProcessingPayment = false;
-        });
+    try {
+      setState(() {
+        _isProcessingPayment = true;
+      });
 
-        // Show success dialog
-        _showSuccessDialog();
+      // Create the order first
+      final order = OrderModel(
+        clientId: auth.authService.currentUser!.id,
+        clientName: name,
+        instructions: specialInstructionsController.text,
+      );
+
+      // Save the order and get the new order ID
+      final orderId = await ordersNotifier.createOrder(order);
+
+      // Now create all the order items using the order items provider
+      final orderItemsNotifier = ref.read(orderItemsProvider(orderId).notifier);
+
+      // Add each cart item as an order item
+      for (final entry in cart.cart.entries) {
+        final menuItem = entry.key;
+        final quantity = entry.value;
+
+        final orderItem = OrderItemModel(
+          orderId: orderId,
+          menuItemId: menuItem.id!, // Assuming MenuItem has an id field
+          count: quantity,
+        );
+
+        await orderItemsNotifier.addOrderItem(orderItem);
       }
-    });
+
+      setState(() {
+        _isProcessingPayment = false;
+      });
+      _showSuccessDialog();
+    } catch (e) {
+      setState(() {
+        _isProcessingPayment = false;
+      });
+      // Show error dialog
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Payment failed: ${e.toString()}')),
+        );
+      }
+    }
   }
 
   void _showSuccessDialog() {
@@ -215,44 +262,6 @@ class _PayPageState extends ConsumerState<PayPage>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Contact information section
-                    const Text(
-                      'Contact Information',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Phone field
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 10,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 5,
-                      ),
-                      child: MyTextField(
-                        controller: phoneController,
-                        labelText: "Phone number",
-                        hintText: "Enter your phone number",
-                        maxLength: 8,
-                        keyboardType: TextInputType.number,
-                        icon: const Icon(Icons.phone),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-
                     // Special instructions section
                     const Text(
                       'Special Instructions',
@@ -264,30 +273,144 @@ class _PayPageState extends ConsumerState<PayPage>
                     const SizedBox(height: 16),
 
                     // Special instructions field
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 10,
-                            offset: const Offset(0, 2),
+                    GestureDetector(
+                      onTap: () async {
+                        await Navigator.push(
+                          context,
+                          PageRouteBuilder(
+                            pageBuilder:
+                                (
+                                  context,
+                                  animation,
+                                  secondaryAnimation,
+                                ) => InfoPage(
+                                  appBarTitle: 'Your order',
+                                  headLine: 'Add your allergies',
+                                  controller: specialInstructionsController,
+                                  hintText:
+                                      'Let the restaurant know what they should take into account',
+                                ),
+                            transitionsBuilder: (
+                              context,
+                              animation,
+                              secondaryAnimation,
+                              child,
+                            ) {
+                              const begin = Offset(0.0, 1.0);
+                              const end = Offset.zero;
+                              const curve = Curves.ease;
+                              var tween = Tween(
+                                begin: begin,
+                                end: end,
+                              ).chain(CurveTween(curve: curve));
+                              return SlideTransition(
+                                position: animation.drive(tween),
+                                child: child,
+                              );
+                            },
                           ),
-                        ],
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 5,
-                      ),
-                      child: MyTextField(
-                        controller: specialInstructionsController,
-                        labelText: "Special instructions or allergies",
-                        hintText: "E.g., No peanuts, gluten-free, etc.",
-                        keyboardType: TextInputType.multiline,
-                        maxLines: 3,
-                        maxLength: 260,
-                        icon: const Icon(Icons.note_alt_outlined),
+                        );
+                        setState(() {});
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey[50],
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.08),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 18,
+                        ),
+                        child:
+                            specialInstructionsController.text.isEmpty
+                                ? Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Icon(
+                                      Icons
+                                          .edit_note, // 📝 Changed to a more meaningful icon
+                                      color: Colors.deepPurple,
+                                      size: 30, // bigger for better notice
+                                    ),
+                                    Expanded(
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                        ),
+                                        child: Text(
+                                          'Special instructions or allergies?',
+                                          style: TextStyle(
+                                            color: Colors.grey[700],
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 15,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ),
+                                    Icon(
+                                      Icons.arrow_forward_ios,
+                                      size: 16,
+                                      color: Colors.grey[400],
+                                    ),
+                                  ],
+                                )
+                                : Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            const Icon(
+                                              Icons.check_circle,
+                                              color: Colors.green,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              'Special instructions',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black87,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Icon(
+                                          Icons.arrow_forward_ios,
+                                          size: 16,
+                                          color: Colors.grey[400],
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Container(
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[100],
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Text(
+                                        specialInstructionsController.text,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.grey[800],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                       ),
                     ),
                     const SizedBox(height: 24), // Order details section

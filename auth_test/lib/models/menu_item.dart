@@ -1,5 +1,5 @@
 class MenuItem {
-  String?
+  int?
   id; // Made nullable since you're not providing it when creating a new item
   String name;
   String desc;
@@ -18,7 +18,7 @@ class MenuItem {
     required this.isavailable,
   });
   MenuItem copyWith({
-    String? id,
+    int? id,
     String? name,
     String? desc,
     double? price,
@@ -39,7 +39,7 @@ class MenuItem {
 
   factory MenuItem.fromJson(Map<String, dynamic> json) {
     return MenuItem(
-      id: json["id"].toString(),
+      id: json["id"] as int,
       name: json["name"],
       desc: json["desc"],
       // Handle different price formats

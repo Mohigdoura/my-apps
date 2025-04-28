@@ -1,10 +1,7 @@
 import 'package:auth_test/components/food_item_card.dart';
-import 'package:auth_test/models/cart_model.dart';
-import 'package:auth_test/pages/user/cart_page.dart';
 import 'package:auth_test/services/auth/auth_service.dart';
 import 'package:auth_test/services/provider/menu_item_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class HomePage extends ConsumerWidget {
@@ -14,7 +11,6 @@ class HomePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authService = AuthService();
     final menuItemsNotifier = ref.read(menuItemsProvider.notifier);
-    final cart = ref.watch(cartProvider);
     final theme = Theme.of(context);
 
     void logout() async {
@@ -51,29 +47,6 @@ class HomePage extends ConsumerWidget {
       }
     }
 
-    void navigateToCart() {
-      HapticFeedback.mediumImpact();
-      Navigator.push(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => CartPage(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            const begin = Offset(1.0, 0.0);
-            const end = Offset.zero;
-            const curve = Curves.easeInOut;
-            var tween = Tween(
-              begin: begin,
-              end: end,
-            ).chain(CurveTween(curve: curve));
-            return SlideTransition(
-              position: animation.drive(tween),
-              child: child,
-            );
-          },
-        ),
-      );
-    }
-
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
@@ -93,48 +66,6 @@ class HomePage extends ConsumerWidget {
           ),
         ),
         centerTitle: true,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                IconButton(
-                  onPressed: navigateToCart,
-                  icon: Icon(
-                    Icons.shopping_cart_rounded,
-                    color: Colors.white,
-                    size: 28,
-                  ),
-                  tooltip: 'View Cart',
-                ),
-                if (cart.getTotalItems() > 0)
-                  Positioned(
-                    right: 0,
-                    top: 8,
-                    child: Container(
-                      padding: EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        shape: BoxShape.circle,
-                      ),
-                      constraints: BoxConstraints(minWidth: 20, minHeight: 20),
-                      child: Center(
-                        child: Text(
-                          cart.getTotalItems().toString(),
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ],
       ),
       body: RefreshIndicator(
         color: theme.colorScheme.primary,
@@ -162,7 +93,7 @@ class HomePage extends ConsumerWidget {
                                   ),
                               itemCount: menuItems.length,
                               itemBuilder: (context, index) {
-                                if (menuItems[index].id!.isEmpty) {
+                                if (menuItems[index].id == null) {
                                   return _buildErrorItem();
                                 }
                                 final menuItem = menuItems[index];
@@ -200,45 +131,6 @@ class HomePage extends ConsumerWidget {
           },
         ),
       ),
-      bottomNavigationBar:
-          cart.cart.isNotEmpty
-              ? AnimatedContainer(
-                duration: Duration(milliseconds: 300),
-                height: 70,
-                margin: EdgeInsets.symmetric(horizontal: 16, vertical: 25),
-                child: ElevatedButton.icon(
-                  onPressed: navigateToCart,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: theme.colorScheme.primary,
-                    foregroundColor: Colors.white,
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                  icon: Icon(Icons.shopping_bag_outlined),
-                  label: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "${cart.getTotalItems()} items",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      Text(
-                        "\$${cart.getTotalPrice().toStringAsFixed(2)}",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              )
-              : null,
     );
   }
 

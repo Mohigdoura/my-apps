@@ -54,13 +54,19 @@ class AuthNotifier extends StateNotifier<AuthStates> {
   }
 
   // SIGN UP
-  Future<String?> signUp(String email, String password, String name) async {
+  Future<String?> signUp(
+    String email,
+    String password,
+    String name,
+    int phone,
+  ) async {
     state = AuthStates.loading();
     try {
       await authService.signUpWithEmailAndPassword(
         email: email,
         password: password,
         name: name,
+        phone: phone,
       );
 
       final userType = await authService.getUserType();
@@ -79,5 +85,10 @@ class AuthNotifier extends StateNotifier<AuthStates> {
   Future<void> signOut() async {
     await authService.signOut();
     state = AuthStates.loggedOut();
+  }
+
+  Future<String?> getUserName() async {
+    final userName = await authService.getUserName();
+    return userName;
   }
 }

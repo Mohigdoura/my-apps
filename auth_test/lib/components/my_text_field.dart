@@ -3,8 +3,7 @@ import 'package:flutter/services.dart';
 
 class MyTextField extends StatelessWidget {
   final TextEditingController? controller;
-  final String labelText;
-  final bool obscureText;
+  final String? labelText;
   final int? maxLines;
   final int? maxLength;
   final String hintText;
@@ -14,12 +13,11 @@ class MyTextField extends StatelessWidget {
   const MyTextField({
     super.key,
     required this.controller,
-    required this.labelText,
+    this.labelText,
     this.maxLines = 1, // Default to 1 line
     this.hintText = '',
     this.maxLength,
     this.icon,
-    this.obscureText = false,
     this.keyboardType = TextInputType.text, // Default to text
   });
 
@@ -29,7 +27,6 @@ class MyTextField extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: TextField(
         controller: controller,
-        obscureText: obscureText,
         keyboardType: keyboardType,
         maxLines: maxLines,
         maxLength: maxLength,

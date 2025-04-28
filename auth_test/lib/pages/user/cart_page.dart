@@ -1,6 +1,7 @@
 import 'package:auth_test/models/cart_model.dart';
 import 'package:auth_test/models/menu_item.dart';
 import 'package:auth_test/pages/user/pay_page.dart';
+import 'package:auth_test/pages/user/user_main_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -230,12 +231,14 @@ class CartPage extends ConsumerWidget {
       ),
       body:
           cart.cart.isEmpty
-              ? _buildEmptyCart(theme, context)
+              ? _buildEmptyCart(theme, context, ref)
               : _buildCartContent(context, cart, cartNotifier, theme),
+      bottomNavigationBar: // Cart summary and payment
+          cart.cart.isNotEmpty ? _buildCartSummary(context, cart, theme) : null,
     );
   }
 
-  Widget _buildEmptyCart(ThemeData theme, BuildContext context) {
+  Widget _buildEmptyCart(ThemeData theme, BuildContext context, WidgetRef ref) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -268,7 +271,9 @@ class CartPage extends ConsumerWidget {
           ),
           SizedBox(height: 32),
           ElevatedButton.icon(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              ref.read(selectedTabProvider.notifier).state = 0;
+            },
             icon: Icon(Icons.restaurant_menu),
             label: Text("Browse Menu"),
             style: ElevatedButton.styleFrom(
@@ -317,8 +322,6 @@ class CartPage extends ConsumerWidget {
             },
           ),
         ),
-        // Cart summary and payment
-        if (cart.cart.isNotEmpty) _buildCartSummary(context, cart, theme),
       ],
     );
   }

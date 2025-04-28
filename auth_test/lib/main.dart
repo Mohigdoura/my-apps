@@ -1,7 +1,11 @@
-import 'package:auth_test/services/auth/auth_gate.dart';
+import 'package:auth_test/l10n/l10n.dart';
+import 'package:auth_test/pages/welcome/welcome_page.dart';
+import 'package:auth_test/services/provider/language_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // IMPORTANT!
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,30 +17,39 @@ void main() async {
   runApp(ProviderScope(child: MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerStatefulWidget {
   const MyApp({super.key});
 
   @override
+  ConsumerState<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends ConsumerState<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the language provider
+    Future.microtask(() => ref.read(languageProvider.notifier).initialize());
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // Watch the language provider to rebuild when locale changes
+    final locale = ref.watch(languageProvider);
+
     return MaterialApp(
+      locale: locale,
+      supportedLocales: L10n.all,
+      localizationsDelegates: [
+        AppLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
       title: 'Food Delivery',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-        appBarTheme: AppBarTheme(color: Colors.blue, elevation: 0),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blue,
-            foregroundColor: Colors.white,
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-        ),
-      ),
+
       debugShowCheckedModeBanner: false,
-      home: AuthGate(),
+      home: AppStartup(),
     );
   }
 }

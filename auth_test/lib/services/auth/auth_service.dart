@@ -24,6 +24,7 @@ class AuthService {
     String email = '',
     String password = '',
     String name = '',
+    int phone = 0,
   }) async {
     try {
       final response = await supabaseClient.auth.signUp(
@@ -35,6 +36,7 @@ class AuthService {
           'id': response.user!.id,
           'email': email,
           'name': name,
+          'phone': phone,
         });
       }
       return response;
@@ -64,6 +66,21 @@ class AuthService {
 
     if (response != null && response['role'] != null) {
       return response['role'] as String;
+    }
+    return null;
+  }
+
+  Future<String?> getUserName() async {
+    final userId = currentUser!.id;
+    final response =
+        await supabaseClient
+            .from("users")
+            .select("name")
+            .eq("id", userId)
+            .maybeSingle();
+
+    if (response != null && response['name'] != null) {
+      return response['name'] as String;
     }
     return null;
   }

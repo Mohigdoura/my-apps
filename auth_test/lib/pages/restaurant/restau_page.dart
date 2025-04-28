@@ -4,6 +4,7 @@ import 'package:auth_test/services/auth/auth_service.dart';
 import 'package:auth_test/services/provider/menu_item_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class RestauPage extends ConsumerWidget {
   const RestauPage({super.key});
@@ -13,20 +14,20 @@ class RestauPage extends ConsumerWidget {
     final authService = AuthService();
     final menuItemsNotifier = ref.read(menuItemsProvider.notifier);
     final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context)!;
 
     void logout() async {
-      // Show confirmation dialog
       bool confirm =
           await showDialog(
             context: context,
             builder:
                 (context) => AlertDialog(
-                  title: Text('Logout'),
-                  content: Text('Are you sure you want to logout?'),
+                  title: Text(loc.logout),
+                  content: Text(loc.logout_confirmation),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context, false),
-                      child: Text('Cancel'),
+                      child: Text(loc.cancel),
                     ),
                     ElevatedButton(
                       onPressed: () => Navigator.pop(context, true),
@@ -34,8 +35,8 @@ class RestauPage extends ConsumerWidget {
                         backgroundColor: Colors.red.shade400,
                       ),
                       child: Text(
-                        'Logout',
-                        style: TextStyle(color: Colors.white),
+                        loc.logout,
+                        style: const TextStyle(color: Colors.white),
                       ),
                     ),
                   ],
@@ -53,7 +54,8 @@ class RestauPage extends ConsumerWidget {
         context,
         PageRouteBuilder(
           pageBuilder:
-              (context, animation, secondaryAnimation) => AddMenuItemPage(),
+              (context, animation, secondaryAnimation) =>
+                  const AddMenuItemPage(),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             const begin = Offset(1.0, 0.0);
             const end = Offset.zero;
@@ -78,12 +80,12 @@ class RestauPage extends ConsumerWidget {
         backgroundColor: theme.colorScheme.primary,
         leading: IconButton(
           onPressed: logout,
-          icon: Icon(Icons.logout_rounded, color: Colors.white),
-          tooltip: 'Logout',
+          icon: const Icon(Icons.logout_rounded, color: Colors.white),
+          tooltip: loc.logout,
         ),
         title: Text(
-          "Restaurant Menu",
-          style: TextStyle(
+          loc.restaurant_menu,
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.white,
             fontSize: 22,
@@ -95,12 +97,12 @@ class RestauPage extends ConsumerWidget {
             padding: const EdgeInsets.only(right: 16.0),
             child: IconButton(
               onPressed: navigateToAddItem,
-              icon: Icon(
+              icon: const Icon(
                 Icons.add_circle_outline,
                 color: Colors.white,
                 size: 28,
               ),
-              tooltip: 'Add New Item',
+              tooltip: loc.add_new_item,
             ),
           ),
         ],
@@ -109,7 +111,7 @@ class RestauPage extends ConsumerWidget {
         onPressed: navigateToAddItem,
         backgroundColor: theme.colorScheme.primary,
         elevation: 4,
-        child: Icon(Icons.add, color: Colors.white),
+        child: const Icon(Icons.add, color: Colors.white),
       ),
       body: RefreshIndicator(
         color: theme.colorScheme.primary,
@@ -130,13 +132,13 @@ class RestauPage extends ConsumerWidget {
                             child: ListView.builder(
                               itemCount: menuItems.length,
                               itemBuilder: (context, index) {
-                                if (menuItems[index].id!.isEmpty) {
-                                  return _buildErrorItem();
+                                if (menuItems[index].id == null) {
+                                  return _buildErrorItem(context);
                                 }
                                 final menuItem = menuItems[index];
                                 return Padding(
                                   padding: const EdgeInsets.only(bottom: 12.0),
-                                  child: RestaurantFoodTile(menuItem: menuItem),
+                                  child: RestaurantFoodItem(menuItem: menuItem),
                                 );
                               },
                             ),
@@ -151,9 +153,9 @@ class RestauPage extends ConsumerWidget {
                             theme.colorScheme.primary,
                           ),
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         Text(
-                          "Loading menu items...",
+                          loc.loading_menu_items,
                           style: TextStyle(
                             color: Colors.grey[600],
                             fontSize: 16,
@@ -163,10 +165,9 @@ class RestauPage extends ConsumerWidget {
                     ),
                   ),
               error:
-                  (error, stackTrace) => _buildErrorState(
-                    error,
-                    () => menuItemsNotifier.fetchMenuItems(),
-                  ),
+                  (error, stackTrace) => _buildErrorState(context, error, () {
+                    menuItemsNotifier.fetchMenuItems();
+                  }),
             );
           },
         ),
@@ -175,32 +176,33 @@ class RestauPage extends ConsumerWidget {
   }
 
   Widget _buildEmptyState(BuildContext context, VoidCallback onAddItem) {
+    final loc = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.restaurant_menu, size: 100, color: Colors.grey[400]),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           Text(
-            "No Menu Items Added Yet",
+            loc.no_menu_items,
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
               color: Colors.grey[700],
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
-            "Add your first menu item",
+            loc.add_first_item,
             style: TextStyle(fontSize: 16, color: Colors.grey[600]),
           ),
-          SizedBox(height: 32),
+          const SizedBox(height: 32),
           ElevatedButton.icon(
             onPressed: onAddItem,
-            icon: Icon(Icons.add),
-            label: Text("Add Menu Item"),
+            icon: const Icon(Icons.add),
+            label: Text(loc.add_menu_item),
             style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
           ),
         ],
@@ -208,7 +210,8 @@ class RestauPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildErrorItem() {
+  Widget _buildErrorItem(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return Card(
       elevation: 2,
       clipBehavior: Clip.antiAlias,
@@ -216,18 +219,23 @@ class RestauPage extends ConsumerWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.error_outline, size: 32, color: Colors.red),
-          SizedBox(height: 8),
+          const Icon(Icons.error_outline, size: 32, color: Colors.red),
+          const SizedBox(height: 8),
           Text(
-            "Invalid Item",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            loc.invalid_item,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildErrorState(Object error, VoidCallback onRetry) {
+  Widget _buildErrorState(
+    BuildContext context,
+    Object error,
+    VoidCallback onRetry,
+  ) {
+    final loc = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -235,35 +243,42 @@ class RestauPage extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.red[50],
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.error_outline, size: 60, color: Colors.red),
+              child: const Icon(
+                Icons.error_outline,
+                size: 60,
+                color: Colors.red,
+              ),
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             Text(
-              'Unable to Load Menu Items',
+              loc.unable_to_load_menu,
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
                 color: Colors.grey[800],
               ),
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Text(
               error.toString(),
               style: TextStyle(color: Colors.red[700]),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             ElevatedButton.icon(
               onPressed: onRetry,
-              icon: Icon(Icons.refresh),
-              label: Text("Try Again"),
+              icon: const Icon(Icons.refresh),
+              label: Text(loc.try_again),
               style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: 12,
+                ),
               ),
             ),
           ],

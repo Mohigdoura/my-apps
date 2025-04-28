@@ -60,39 +60,35 @@ class _FoodPageState extends ConsumerState<FoodPage>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Hero image with gradient overlay
               Stack(
                 children: [
-                  Hero(
-                    tag: 'food-item-${widget.menuItem.id}',
-                    child: Image.network(
-                      widget.menuItem.imageUrl,
-                      height: size.width,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                      errorBuilder:
-                          (context, error, stackTrace) => Container(
-                            height: size.width * 0.7,
-                            color: Colors.grey[200],
-                            child: Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.no_food,
-                                    size: 80,
-                                    color: Colors.grey,
-                                  ),
-                                  SizedBox(height: 16),
-                                  Text(
-                                    "Image not available",
-                                    style: TextStyle(color: Colors.grey[700]),
-                                  ),
-                                ],
-                              ),
+                  Image.network(
+                    widget.menuItem.imageUrl,
+                    height: size.width,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder:
+                        (context, error, stackTrace) => Container(
+                          height: size.width * 0.7,
+                          color: Colors.grey[200],
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.no_food,
+                                  size: 80,
+                                  color: Colors.grey,
+                                ),
+                                SizedBox(height: 16),
+                                Text(
+                                  "Image not available",
+                                  style: TextStyle(color: Colors.grey[700]),
+                                ),
+                              ],
                             ),
                           ),
-                    ),
+                        ),
                   ),
                   Positioned(
                     bottom: 0,
